@@ -1,0 +1,73 @@
+/* =========================================================
+   Home Pantry styles
+   1. Design tokens (colours, fonts): change the look here
+   2. Base page
+   3. Components
+   ========================================================= */
+
+/* ---------- 1. Design tokens: light mode ---------- */
+:root {
+  --bg: #f2f4f1;          /* page background */
+  --surface: #ffffff;     /* cards, sheets */
+  --ink: #1c2420;         /* main text */
+  --muted: #5d6a63;       /* secondary text */
+  --line: #dde3de;        /* borders */
+  --accent: #2f6b4f;      /* buttons, highlights (basil green) */
+  --accent-ink: #ffffff;  /* text on accent */
+  --warn: #9a5b00;        /* low stock */
+  --crit: #b3261e;        /* out of stock, expired */
+  --radius: 12px;
+  --font: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  color-scheme: light;
+}
+
+/* Dark mode: follows the phone's setting */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141a17;
+    --surface: #1c2420;
+    --ink: #e8eee9;
+    --muted: #9aa8a0;
+    --line: #2c3731;
+    --accent: #7cc3a0;
+    --accent-ink: #10201a;
+    --warn: #f0b75a;
+    --crit: #f28b82;
+    color-scheme: dark;
+  }
+}
+
+/* ---------- 2. Base page ---------- */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 var(--font);
+  /* Keep content clear of phone notches and home bars */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 96px;
+}
+
+h1 { font-size: 1.8rem; line-height: 1.15; margin: 0 0 8px; }
+.muted { color: var(--muted); }
+
+/* ---------- 3. Components ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.checklist { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.checklist li::before { content: "○ "; color: var(--muted); }
+.checklist li.done::before { content: "● "; color: var(--accent); }
