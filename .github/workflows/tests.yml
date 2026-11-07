@@ -1,0 +1,41 @@
+# Runs all tests + coverage on GitHub every time code is uploaded (pushed).
+# Results: the repo's "Actions" tab → "Tests". A ✅ or ❌ also appears next to each commit.
+# The coverage table is shown on the run's summary page; the full report can be
+# downloaded there as "coverage-report".
+
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:      # adds a "Run workflow" button in the Actions tab
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install test tools (Playwright)
+        run: npm install --no-audit --no-fund
+
+      - name: Install the test browser (Chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Run tests and coverage
+        run: npm test
+
+      - name: Save the coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/index.html
+          retention-days: 30
