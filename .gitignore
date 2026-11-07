@@ -1,0 +1,4 @@
+# Created by tests; not part of the app
+coverage/
+node_modules/
+package-lock.json
