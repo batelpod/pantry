@@ -5,8 +5,8 @@ how the code is organised, and what's next, so nobody has to re-read all the cod
 
 ## Current status
 
-- **Step:** 4 (Shopping list): uploaded, being tested. Steps 1–3 done and tested.
-- **Current version:** `v=4` (see "Releasing a new version" below)
+- **Step:** Tests & coverage (between steps 4 and 5): built, waiting to be uploaded. Steps 1–4 done.
+- **Current version:** `v=5` (see "Releasing a new version" below)
 - **Live app:** https://batelpod.github.io/pantry
 - **Repo:** https://github.com/batelpod/pantry
 - **Supabase project:** `yyqeisscqglobpaawssk` (region: Central EU / Frankfurt)
@@ -15,9 +15,8 @@ how the code is organised, and what's next, so nobody has to re-read all the cod
 
 ## Next action
 
-1. Make sure `supabase/03-shopping.sql` has been run in the Supabase SQL Editor (step 4 code is uploaded).
-2. Test: shopping list, tick items, finish shopping, share; ticks show on a second phone.
-3. Propose step 5 (item history) and wait for the owner's OK before building.
+1. Upload the tests (including the hidden `.github` folder) and check the Actions tab shows ✅.
+2. Propose step 5 (item history) and wait for the owner's OK before building.
 4. Saved for later: switch to Claude Code on the web + Supabase connector (see PLAN.md, "Later").
 
 ## How the code is organised
@@ -41,6 +40,14 @@ how the code is organised, and what's next, so nobody has to re-read all the cod
 | `supabase/schema.sql` | Step 2 database: households, members, invites + security rules. Run first. |
 | `supabase/02-items.sql` | Step 3 database: items table, who-changed-it trigger, `adjust_qty()`, live updates. Run second. |
 | `supabase/03-shopping.sql` | Step 4 database: shopping columns, smarter "updated by" trigger, `finish_shopping()`. Run third. |
+| `package.json` | Development tools only (Playwright for screen tests). The app doesn't use it. |
+| `.github/workflows/tests.yml` | Runs all tests + coverage on GitHub on every upload. |
+| `tests/run.mjs` | Runs everything: unit tests, screen tests, coverage report (`npm test`). |
+| `tests/coverage-report.mjs` | Combines coverage, prints the table, writes `coverage/index.html`, enforces the 80% goal. |
+| `tests/fakes/supabase-fake.js` | Pretend Supabase used by all tests: in-memory data, records calls, can simulate errors and live updates. |
+| `tests/helpers/` | `node-setup.mjs` + `cdn-hooks.mjs` (unit tests use the fake), `browser.mjs` (opens the app in headless Chromium). |
+| `tests/unit/*.test.js` | Unit tests: rules (`format`), items, household, auth, config. |
+| `tests/ui/*.test.js` | Screen tests: log in / sign up / reset, household, pantry, shopping list. |
 | `PLAN.md` | Goals, decisions, data model, step checklist. |
 | `NOTES.md` | This file: status, structure, change log. |
 
@@ -76,10 +83,24 @@ how the code is organised, and what's next, so nobody has to re-read all the cod
 - Adding a name that isn't in the pantry creates a new item (place "Other", qty 0).
 - Ticking / list changes do **not** change "Updated by". Only pantry fields do (trigger in 03).
 
+## Tests and coverage
+
+- **Goal:** at least **80%** of app code lines covered (agreed with owner). Below that the run fails.
+- **On GitHub:** every upload runs `.github/workflows/tests.yml`. Results in the **Actions** tab;
+  the coverage table is on the run's summary page; full line-by-line report under "Artifacts → coverage-report".
+- **On a computer** (optional): install Node 22, then `npm install`, `npx playwright install chromium`, `npm test`.
+- **Tools:** Node's built-in test runner (no install) + Playwright for screens. Coverage comes from V8,
+  the engine in Node and Chrome, combined by `tests/coverage-report.mjs`. No other dependencies.
+- **Rule for every new step:** add tests for the new code in the same step. New app `.js` files are
+  picked up by the coverage report automatically.
+- `tests/unit/release.test.js` checks the version list in `index.html` (every file listed, one version).
+- **Not covered yet:** database security rules (RLS). Possible later step with a temporary Supabase in GitHub Actions.
+- Coverage when added (v=5): 99.4% lines; 71 unit tests + 53 screen tests.
+
 ## Releasing a new version
 
 Phones keep copies of files for a while. To make sure everyone gets new code:
-1. In `index.html`, find & replace `v=4` with the next number (e.g. `v=5`) everywhere.
+1. In `index.html`, find & replace the version (now `v=5`) with the next number everywhere.
 2. If a new `.js` file was added, add a line for it in the import map list.
 3. Update "Current version" at the top of this file.
 
@@ -110,3 +131,6 @@ Phones keep copies of files for a while. To make sure everyone gets new code:
   numbers on files. Added `supabase/03-shopping.sql`, `js/ui/format.js`, `js/ui/shopping-screen.js`.
 - **2026-11-07** · Decided to keep uploading manually for now; switching to Claude Code on the web
   + Supabase connector saved as a later step in PLAN.md.
+- **2026-11-07** · Tests & coverage (v=5): 71 unit tests + 53 screen tests, coverage report with 80% goal,
+  GitHub Actions. Tests found and fixed: the shopping list's bottom bar showed on an empty list
+  (`[hidden]` rule in CSS); `auth.js` now always returns standard errors.

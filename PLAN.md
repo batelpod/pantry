@@ -52,6 +52,8 @@ and NOTES.md updated.
       add / edit / delete; + / − buttons; search and place filters;
       "updated by … · time ago"; live updates from other members
 - [x] **4. Shopping list**: low-stock view, tick off while shopping, copy/share list
+- [x] **Tests & coverage**: unit + screen tests, coverage report (goal 80%), run on GitHub on every upload.
+      From now on every step includes its tests.
 - [ ] **5. Item history**: log every change, show per-item timeline
 - [ ] **6. Photos**: take or pick a photo, store in Supabase Storage, thumbnails
 - [ ] **7. Barcodes**: live camera scanning, look up product in Open Food Facts,

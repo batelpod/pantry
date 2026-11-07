@@ -45,6 +45,7 @@
 
 /* ---------- 2. Base page ---------- */
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }   /* hidden always wins over layout styles */
 
 body {
   margin: 0;

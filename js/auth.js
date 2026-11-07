@@ -10,7 +10,7 @@ export async function signUp(email, password) {
   const { data, error } = await supabase.auth.signUp({
     email, password, options: { emailRedirectTo: appUrl() },
   });
-  if (error) throw error;
+  if (error) throw friendly(error);
   // If email confirmation is on (the default), there's no session yet:
   // the person must click the link in their email first.
   return { needsConfirmation: !data.session };
@@ -27,12 +27,12 @@ export async function logOut() {
 
 export async function sendPasswordReset(email) {
   const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: appUrl() });
-  if (error) throw error;
+  if (error) throw friendly(error);
 }
 
 export async function setNewPassword(password) {
   const { error } = await supabase.auth.updateUser({ password });
-  if (error) throw error;
+  if (error) throw friendly(error);
 }
 
 export async function currentUser() {
@@ -41,9 +41,10 @@ export async function currentUser() {
 }
 
 // Supabase's messages are mostly fine; this makes the common ones clearer.
+// Always returns a standard Error, like the other data files do.
 function friendly(error) {
   const m = error.message || "";
   if (/invalid login credentials/i.test(m)) return new Error("Email or password is wrong.");
   if (/email not confirmed/i.test(m)) return new Error("Please confirm your email first. Check your inbox for the link.");
-  return error;
+  return new Error(m || "Something went wrong. Please try again.");
 }
