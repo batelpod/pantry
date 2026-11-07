@@ -140,7 +140,7 @@ p { margin: 0; }
 /* Toast message */
 .toast {
   position: fixed; left: 50%; transform: translateX(-50%);
-  bottom: calc(20px + env(safe-area-inset-bottom));
+  bottom: calc(88px + env(safe-area-inset-bottom));   /* above the bottom buttons */
   background: var(--ink); color: var(--bg);
   padding: 10px 18px; border-radius: 10px; z-index: 50; max-width: calc(100% - 32px);
 }
@@ -263,3 +263,38 @@ p { margin: 0; }
 .sheet-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .spacer { flex: 1; }
 .btn.danger { color: var(--crit); }
+
+/* =========================================================
+   6. Shopping list (step 4)
+   ========================================================= */
+.tag.info { color: var(--accent); background: var(--accent-soft); }
+.link.tiny { font-size: .78rem; padding: 0 2px; }
+.check { display: flex !important; align-items: center; gap: 10px; color: var(--ink) !important; }
+.check input { width: 22px; height: 22px; min-height: 0; flex: none; accent-color: var(--accent); }
+.check span { line-height: 1.35; }
+.item-main.static { cursor: default; }
+
+.addbar { display: flex; gap: 8px; margin-top: 16px; }
+.addbar .search { flex: 1; min-width: 0; }
+
+.item.shop { grid-template-columns: auto 1fr auto; }
+.tick {
+  width: 30px; height: 30px; border-radius: 8px; cursor: pointer; flex: none;
+  border: 2px solid var(--line); background: var(--field);
+  display: grid; place-items: center;
+}
+.tick[aria-checked="true"] { background: var(--accent); border-color: var(--accent); }
+.tick[aria-checked="true"]::after {
+  content: ""; width: 8px; height: 14px; margin-top: -3px;
+  border: solid var(--accent-ink); border-width: 0 3px 3px 0; transform: rotate(45deg);
+}
+.item.done strong { text-decoration: line-through; color: var(--muted); }
+
+/* Sticky bar at the bottom with Share + Finish */
+.bottombar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  display: flex; gap: 8px; justify-content: center;
+  padding: 12px calc(16px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+  background: var(--surface); border-top: 1px solid var(--line);
+}
+.bottombar .btn { flex: 1; max-width: 270px; }

@@ -4,7 +4,8 @@
 import { supabase } from "./supabase.js";
 
 const COLUMNS =
-  "id, household_id, name, category, location, qty, unit, min_qty, expires_on, barcode, photo_path, created_at, updated_at, updated_by";
+  "id, household_id, name, category, location, qty, unit, min_qty, expires_on, barcode, photo_path, " +
+  "on_list, in_cart, buy_qty, created_at, updated_at, updated_by";
 
 function check(error) {
   if (error) throw new Error(error.message || "Something went wrong. Please try again.");
@@ -17,7 +18,7 @@ export async function listItems(householdId) {
   return data;
 }
 
-// `fields` = { name, category, location, qty, unit, min_qty, expires_on }
+// `fields` = { name, category, location, qty, unit, min_qty, expires_on, on_list }
 export async function addItem(householdId, fields) {
   const { data, error } = await supabase
     .from("items").insert({ ...fields, household_id: householdId }).select(COLUMNS).single();
@@ -42,6 +43,14 @@ export async function adjustQty(id, delta) {
   const { data, error } = await supabase.rpc("adjust_qty", { p_item: id, p_delta: delta });
   check(error);
   return data;
+}
+
+// Add everything in the cart to the pantry and clear the shopping list.
+// Returns the updated items.
+export async function finishShopping(householdId) {
+  const { data, error } = await supabase.rpc("finish_shopping", { p_household: householdId });
+  check(error);
+  return data || [];
 }
 
 // Call onUpsert(item) when an item is added or changed, onDelete(id) when one is removed,

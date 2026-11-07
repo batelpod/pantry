@@ -17,6 +17,7 @@ export function show(html) {
 
 // A short message at the bottom of the screen that disappears by itself.
 export function toast(message) {
+  document.querySelectorAll(".toast").forEach((t) => t.remove());   // one at a time
   const el = document.createElement("div");
   el.className = "toast";
   el.setAttribute("role", "status");

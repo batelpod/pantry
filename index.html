@@ -8,7 +8,32 @@
   <!-- Colour of the phone's browser bar -->
   <meta name="theme-color" content="#2f6b4f" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#141a17" media="(prefers-color-scheme: dark)">
-  <link rel="stylesheet" href="css/styles.css">
+
+  <!--
+    VERSION NUMBERS: phones keep copies of files for a while. Adding ?v=…
+    makes them fetch fresh files after each release.
+    On every release: change v=4 to the next number in ALL lines below
+    (find & replace "v=4"). New JavaScript files must be added to the list.
+  -->
+  <link rel="stylesheet" href="css/styles.css?v=4">
+  <script type="importmap">
+  {
+    "imports": {
+      "./js/app.js":                    "./js/app.js?v=4",
+      "./js/config.js":                 "./js/config.js?v=4",
+      "./js/supabase.js":               "./js/supabase.js?v=4",
+      "./js/auth.js":                   "./js/auth.js?v=4",
+      "./js/household.js":              "./js/household.js?v=4",
+      "./js/items.js":                  "./js/items.js?v=4",
+      "./js/ui/dom.js":                 "./js/ui/dom.js?v=4",
+      "./js/ui/format.js":              "./js/ui/format.js?v=4",
+      "./js/ui/auth-screens.js":        "./js/ui/auth-screens.js?v=4",
+      "./js/ui/household-screens.js":   "./js/ui/household-screens.js?v=4",
+      "./js/ui/inventory-screen.js":    "./js/ui/inventory-screen.js?v=4",
+      "./js/ui/shopping-screen.js":     "./js/ui/shopping-screen.js?v=4"
+    }
+  }
+  </script>
 </head>
 <body>
   <!-- Everything the app shows is drawn inside #app by js/app.js -->
@@ -17,6 +42,6 @@
   </main>
 
   <!-- type="module" lets our JavaScript files import each other -->
-  <script type="module" src="js/app.js"></script>
+  <script type="module">import "./js/app.js";</script>
 </body>
 </html>

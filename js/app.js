@@ -3,7 +3,8 @@
 //   not logged in            → log in / sign up
 //   opened a reset link      → choose a new password
 //   logged in, no household  → create or join a household
-//   logged in, in household  → pantry (inventory), with a link to the household page
+//   logged in, in household  → pantry (inventory), with buttons to the shopping list
+//                              and the household page
 //
 // It re-checks whenever the login state changes (log in, log out, email link).
 
@@ -12,6 +13,7 @@ import { show, esc, toast, pendingInvite } from "./ui/dom.js";
 import { showLogIn, showSetPassword } from "./ui/auth-screens.js";
 import { showHouseholdSetup, showHousehold } from "./ui/household-screens.js";
 import { showInventory, stopInventory } from "./ui/inventory-screen.js";
+import { showShopping, stopShopping } from "./ui/shopping-screen.js";
 import { getMyMembership } from "./household.js";
 
 // 1. If the page was opened from an invite link (?invite=CODE), remember the
@@ -29,7 +31,8 @@ let routing = false;
 async function route() {
   if (routing) return;
   routing = true;
-  stopInventory();   // leaving the pantry screen (if we were on it) stops live updates
+  stopInventory();   // leaving the pantry or shopping screen stops their live updates
+  stopShopping();
   try {
     const { data } = await supabase.auth.getSession();
     const user = data.session?.user;
@@ -48,6 +51,7 @@ async function route() {
     }
     showInventory(user, me, {
       onHousehold: () => showHousehold(user, me, route),
+      onShopping: () => showShopping(user, me, { onBack: route }),
     });
   } catch (err) {
     show(`

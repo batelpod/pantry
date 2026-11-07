@@ -10,9 +10,9 @@ import { show, esc, toast } from "./dom.js";
 import { listItems, addItem, updateItem, deleteItem, adjustQty, watchItems } from "../items.js";
 import { listMembers } from "../household.js";
 import { PLACES } from "../config.js";
+import { num, isLowQty, daysLeft, SOON_DAYS, timeAgo } from "./format.js";
 
 const UNITS = ["pcs", "packs", "cans", "bottles", "jars", "boxes", "bags", "rolls", "kg", "g", "L", "ml"];
-const SOON_DAYS = 7;   // "expiring soon" = within this many days
 
 // Everything this screen knows, in one place.
 const state = {
@@ -28,29 +28,15 @@ const state = {
 
 // ---------- Small helpers ----------
 
-const num = (n) => (Number.isInteger(Number(n)) ? String(Number(n)) : Number(n).toFixed(1));
-
 // Quantity on screen = database value + taps on their way.
 const shownQty = (it) =>
   Math.max(0, Number(it.qty) + (state.pending.get(it.id)?.delta || 0) + (state.inflight.get(it.id) || 0));
 
 const isOut = (it) => shownQty(it) <= 0;
-const isLow = (it) => shownQty(it) <= Number(it.min_qty);
-
-function daysLeft(it) {
-  if (!it.expires_on) return null;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  return Math.round((new Date(it.expires_on + "T00:00:00") - today) / 86400000);
-}
+const isLow = (it) => isLowQty(shownQty(it), it.min_qty);
+const toBuy = (it) => isLow(it) || it.on_list || it.in_cart;   // same rule as the shopping list
 const expiresSoon = (it) => { const d = daysLeft(it); return d !== null && d <= SOON_DAYS; };
 
-const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
-function timeAgo(iso) {
-  const secs = (new Date(iso) - Date.now()) / 1000;
-  const steps = [["year", 31536000], ["month", 2592000], ["week", 604800], ["day", 86400], ["hour", 3600], ["minute", 60]];
-  for (const [unit, size] of steps) if (Math.abs(secs) >= size) return rtf.format(Math.round(secs / size), unit);
-  return "just now";
-}
 
 function whoDidIt(it) {
   if (it.updated_by === state.user.id) return "you";
@@ -59,7 +45,7 @@ function whoDidIt(it) {
 
 // ---------- Screen ----------
 
-export async function showInventory(user, me, { onHousehold }) {
+export async function showInventory(user, me, { onHousehold, onShopping }) {
   stopInventory();
   Object.assign(state, { user, me, q: "", place: "All", view: "all", loaded: false });
   state.items.clear();
@@ -70,7 +56,10 @@ export async function showInventory(user, me, { onHousehold }) {
         <p class="eyebrow">${esc(me.household_name)}</p>
         <h1>Pantry</h1>
       </div>
-      <button class="btn small" type="button" id="household" aria-label="Household and settings">Household</button>
+      <div class="row">
+        <button class="btn small primary" type="button" id="shopping">Shopping list</button>
+        <button class="btn small" type="button" id="household" aria-label="Household and settings">Household</button>
+      </div>
     </header>
 
     <div class="stats">
@@ -91,6 +80,7 @@ export async function showInventory(user, me, { onHousehold }) {
   `);
 
   app.querySelector("#household").onclick = () => { stopInventory(); onHousehold(); };
+  app.querySelector("#shopping").onclick = () => { stopInventory(); onShopping(); };
   app.querySelector("#add").onclick = () => openSheet(null);
   app.querySelector("#search").oninput = (e) => { state.q = e.target.value; renderList(); };
   app.querySelector(".stats").onclick = (e) => {
@@ -156,7 +146,7 @@ function visibleItems() {
   const q = state.q.trim().toLowerCase();
   return [...state.items.values()].filter((it) =>
     (state.place === "All" || (it.location || "Other") === state.place) &&
-    (state.view !== "low" || isLow(it)) &&
+    (state.view !== "low" || toBuy(it)) &&
     (state.view !== "soon" || expiresSoon(it)) &&
     (!q || `${it.name} ${it.category || ""}`.toLowerCase().includes(q)));
 }
@@ -168,7 +158,7 @@ function renderList() {
 
   // Summary numbers + which one is selected
   document.getElementById("nAll").textContent = all.length;
-  document.getElementById("nLow").textContent = all.filter(isLow).length;
+  document.getElementById("nLow").textContent = all.filter(toBuy).length;
   document.getElementById("nSoon").textContent = all.filter(expiresSoon).length;
   document.querySelectorAll(".stat").forEach((b) =>
     b.setAttribute("aria-pressed", String(b.dataset.view === state.view && state.view !== "all")));
@@ -216,6 +206,7 @@ function rowHtml(it) {
   if (d !== null && d < 0) tags.push(`<span class="tag crit">Expired</span>`);
   else if (d === 0) tags.push(`<span class="tag crit">Expires today</span>`);
   else if (d !== null && d <= SOON_DAYS) tags.push(`<span class="tag warn">Expires in ${d} day${d === 1 ? "" : "s"}</span>`);
+  if (it.on_list && !isLow(it)) tags.push(`<span class="tag info">On list</span>`);
 
   const status = isOut(it) ? "out" : isLow(it) ? "low" : "";
   return `
@@ -298,6 +289,8 @@ function openSheet(item) {
           <label>Buy more at or below <input id="f-min" type="number" inputmode="decimal" min="0" step="any" value="${esc(num(it.min_qty))}"></label>
           <label>Expires <input id="f-expires" type="date" value="${esc(it.expires_on || "")}"></label>
         </div>
+        <label class="check"><input id="f-onlist" type="checkbox"${it.on_list ? " checked" : ""}>
+          <span>Add to shopping list<br><small class="muted">Low items are added automatically.</small></span></label>
         ${item ? `<p class="muted small">Last updated by ${esc(whoDidIt(it))} · ${esc(timeAgo(it.updated_at))}</p>` : ""}
         <p class="error" role="alert"></p>
         <div class="sheet-actions">
@@ -330,6 +323,7 @@ function openSheet(item) {
       unit: f("f-unit").value.trim() || "pcs",
       min_qty: Math.max(0, Number(f("f-min").value) || 0),
       expires_on: f("f-expires").value || null,
+      on_list: f("f-onlist").checked,
     };
     if (!fields.name) return;
     const button = form.querySelector("button[type=submit]");
