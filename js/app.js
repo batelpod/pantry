@@ -1,31 +1,67 @@
-// Starting point of the app.
+// Starting point of the app. It decides which screen to show:
 //
-// Step 1: shows a placeholder page so we can confirm hosting works.
-// From step 2 on, this file decides which screen to show
-// (log in, join household, or the inventory).
+//   not logged in            → log in / sign up
+//   opened a reset link      → choose a new password
+//   logged in, no household  → create or join a household
+//   logged in, in household  → home
+//
+// It re-checks whenever the login state changes (log in, log out, email link).
 
-import { SUPABASE_URL } from "./config.js";
+import { supabase } from "./supabase.js";
+import { show, esc, toast, pendingInvite } from "./ui/dom.js";
+import { showLogIn, showSetPassword } from "./ui/auth-screens.js";
+import { showHouseholdSetup, showHome } from "./ui/household-screens.js";
+import { getMyMembership } from "./household.js";
 
-const app = document.getElementById("app");
+// 1. If the page was opened from an invite link (?invite=CODE), remember the
+//    code and tidy the address bar.
+const params = new URLSearchParams(location.search);
+if (params.get("invite")) {
+  pendingInvite.set(params.get("invite").toUpperCase());
+  history.replaceState(null, "", location.pathname);
+}
 
-const steps = [
-  ["Setup", true],
-  ["Users & household", false],
-  ["Core inventory", false],
-  ["Shopping list", false],
-  ["Item history", false],
-  ["Photos", false],
-  ["Barcodes", false],
-  ["Polish", false],
-];
+let resettingPassword = false;
+let routing = false;
 
-app.innerHTML = `
-  <h1>Home Pantry</h1>
-  <p class="muted">The app is online. Features arrive step by step.</p>
-  <section class="card">
-    <ul class="checklist">
-      ${steps.map(([name, done]) => `<li class="${done ? "done" : ""}">${name}</li>`).join("")}
-    </ul>
-  </section>
-  <p class="muted">Database: ${SUPABASE_URL ? "configured" : "not connected yet"}</p>
-`;
+// 2. Pick and show the right screen.
+async function route() {
+  if (routing) return;
+  routing = true;
+  try {
+    const { data } = await supabase.auth.getSession();
+    const user = data.session?.user;
+
+    if (!user) return showLogIn();
+    if (resettingPassword) {
+      return showSetPassword(() => { resettingPassword = false; toast("Password updated"); route(); });
+    }
+
+    const me = await getMyMembership(user.id);
+    if (!me) return showHouseholdSetup(user, route);
+
+    if (pendingInvite.get()) {           // already in a household: ignore the invite
+      pendingInvite.clear();
+      toast("You're already in a household");
+    }
+    showHome(user, me);
+  } catch (err) {
+    show(`
+      <section class="card">
+        <h2>Can't reach the pantry</h2>
+        <p class="muted">${esc(err.message || "Check your internet connection.")}</p>
+        <button class="btn primary" type="button" onclick="location.reload()">Try again</button>
+      </section>`);
+  } finally {
+    routing = false;
+  }
+}
+
+// 3. React to login changes. Supabase also fires this once when the page loads.
+//    (We call route() on the next tick: Supabase advises against awaiting its
+//    own calls directly inside this callback.)
+supabase.auth.onAuthStateChange((event) => {
+  if (event === "PASSWORD_RECOVERY") resettingPassword = true;
+  if (event === "TOKEN_REFRESHED" || event === "USER_UPDATED") return;
+  setTimeout(route, 0);
+});

@@ -2,7 +2,8 @@
    Home Pantry styles
    1. Design tokens (colours, fonts): change the look here
    2. Base page
-   3. Components
+   3. Layout helpers
+   4. Components: cards, forms, buttons, members, toast
    ========================================================= */
 
 /* ---------- 1. Design tokens: light mode ---------- */
@@ -12,12 +13,15 @@
   --ink: #1c2420;         /* main text */
   --muted: #5d6a63;       /* secondary text */
   --line: #dde3de;        /* borders */
+  --field: #f7f9f7;       /* input background */
   --accent: #2f6b4f;      /* buttons, highlights (basil green) */
   --accent-ink: #ffffff;  /* text on accent */
+  --accent-soft: #e2eee7; /* light accent background */
   --warn: #9a5b00;        /* low stock */
-  --crit: #b3261e;        /* out of stock, expired */
+  --crit: #b3261e;        /* errors, out of stock */
   --radius: 12px;
   --font: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   color-scheme: light;
 }
 
@@ -29,8 +33,10 @@
     --ink: #e8eee9;
     --muted: #9aa8a0;
     --line: #2c3731;
+    --field: #151c18;
     --accent: #7cc3a0;
     --accent-ink: #10201a;
+    --accent-soft: #23362d;
     --warn: #f0b75a;
     --crit: #f28b82;
     color-scheme: dark;
@@ -51,23 +57,90 @@ body {
 }
 
 main {
-  max-width: 720px;
+  max-width: 560px;
   margin: 0 auto;
   padding: 24px 16px 96px;
 }
 
-h1 { font-size: 1.8rem; line-height: 1.15; margin: 0 0 8px; }
+h1 { font-size: 1.8rem; line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-size: 1.1rem; margin: 0; }
+p { margin: 0; }
 .muted { color: var(--muted); }
+.center { text-align: center; margin-top: 20px; }
+.mono { font-family: var(--mono); letter-spacing: .05em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ---------- 3. Components ---------- */
+/* ---------- 3. Layout helpers ---------- */
+.brand { display: grid; gap: 6px; margin-bottom: 8px; }
+.eyebrow { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.row-between { display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+
+/* ---------- 4. Components ---------- */
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 16px;
   margin-top: 16px;
+  display: grid;
+  gap: 12px;
 }
 
-.checklist { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
-.checklist li::before { content: "○ "; color: var(--muted); }
-.checklist li.done::before { content: "● "; color: var(--accent); }
+.banner {
+  margin-top: 16px; padding: 12px 14px; border-radius: var(--radius);
+  background: var(--accent-soft); color: var(--ink);
+}
+
+/* Forms: big touch targets, 16px text so phones don't zoom in */
+.form label { display: grid; gap: 4px; font-size: .9rem; color: var(--muted); }
+.form input {
+  font: inherit; font-size: 16px; color: var(--ink);
+  background: var(--field); border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px; width: 100%; min-height: 48px;
+}
+.form input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.error { color: var(--crit); font-size: .9rem; }
+.error:empty { display: none; }
+
+/* Buttons */
+.btn {
+  font: inherit; font-weight: 700; cursor: pointer;
+  min-height: 48px; padding: 10px 18px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.small { min-height: 40px; padding: 6px 14px; font-size: .9rem; }
+.btn:disabled { opacity: .55; cursor: default; }
+.link {
+  font: inherit; color: var(--accent); background: none; border: 0; padding: 4px;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px; justify-self: center;
+}
+
+/* Invite box */
+.invite { display: grid; gap: 10px; padding: 12px; border-radius: 10px; background: var(--accent-soft); }
+.invite input {
+  font: inherit; font-size: 14px; width: 100%; padding: 10px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+
+/* Members list */
+.members { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.members li { display: flex; align-items: center; gap: 10px; }
+.avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; font-weight: 700;
+  background: var(--accent-soft); color: var(--accent);
+}
+.pill {
+  margin-left: auto; font-size: .75rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 999px; background: var(--accent-soft); color: var(--accent);
+}
+
+/* Toast message */
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  background: var(--ink); color: var(--bg);
+  padding: 10px 18px; border-radius: 10px; z-index: 50; max-width: calc(100% - 32px);
+}

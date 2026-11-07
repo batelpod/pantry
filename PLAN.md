@@ -46,7 +46,7 @@ Each step ends with code uploaded to GitHub, the app checked on a phone,
 and NOTES.md updated.
 
 - [x] **1. Setup**: GitHub account, repository, project skeleton, GitHub Pages live
-- [ ] **2. Users & household**: Supabase project, sign up / log in / log out,
+- [x] **2. Users & household**: Supabase project, sign up / log in / log out,
       create household, invite link, join household, display names
 - [ ] **3. Core inventory**: database tables + security rules; list grouped by place;
       add / edit / delete; + / − buttons; search and place filters;
