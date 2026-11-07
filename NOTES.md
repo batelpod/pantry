@@ -5,7 +5,7 @@ how the code is organised, and what's next, so nobody has to re-read all the cod
 
 ## Current status
 
-- **Step:** 4 (Shopping list): code written, waiting to be uploaded and tested live. Steps 1–3 done and tested.
+- **Step:** 4 (Shopping list): uploaded, being tested. Steps 1–3 done and tested.
 - **Current version:** `v=4` (see "Releasing a new version" below)
 - **Live app:** https://batelpod.github.io/pantry
 - **Repo:** https://github.com/batelpod/pantry
@@ -15,10 +15,10 @@ how the code is organised, and what's next, so nobody has to re-read all the cod
 
 ## Next action
 
-1. Run `supabase/03-shopping.sql` in the Supabase SQL Editor.
-2. Upload the step 4 files to GitHub.
-3. Test: shopping list, tick items, finish shopping, share; ticks show on a second phone.
-4. Then start step 5: item history.
+1. Make sure `supabase/03-shopping.sql` has been run in the Supabase SQL Editor (step 4 code is uploaded).
+2. Test: shopping list, tick items, finish shopping, share; ticks show on a second phone.
+3. Propose step 5 (item history) and wait for the owner's OK before building.
+4. Saved for later: switch to Claude Code on the web + Supabase connector (see PLAN.md, "Later").
 
 ## How the code is organised
 
@@ -108,3 +108,5 @@ Phones keep copies of files for a while. To make sure everyone gets new code:
 - **2026-11-07** · Step 4 (v=4): shopping list screen, tick into cart, how many to buy,
   finish shopping, share/copy list, "Add to shopping list" option on items, version
   numbers on files. Added `supabase/03-shopping.sql`, `js/ui/format.js`, `js/ui/shopping-screen.js`.
+- **2026-11-07** · Decided to keep uploading manually for now; switching to Claude Code on the web
+  + Supabase connector saved as a later step in PLAN.md.

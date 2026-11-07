@@ -58,3 +58,16 @@ and NOTES.md updated.
       scan an existing item to jump to it / +1
 - [ ] **8. Polish**: add-to-home-screen (PWA), offline-friendly, expiry reminders,
       final code review
+
+## Later: work without uploading files
+
+Saved for later (agreed 2026-11-07). Not started.
+
+- [ ] **Claude Code on the web**: connect claude.ai/code to GitHub (Claude GitHub app,
+      access to the `pantry` repo only). Claude makes changes and opens a pull request;
+      owner reviews on GitHub and clicks Merge. No more zips or manual uploads.
+- [ ] **Supabase connector**: connect Supabase in claude.ai Settings → Connectors so Claude
+      can run the database scripts (after showing them and getting an OK).
+- First message for the new session: "Read NOTES.md and PLAN.md first. We're working step by
+  step, and you must propose each step and wait for my OK before writing code."
+
