@@ -48,7 +48,7 @@ and NOTES.md updated.
 - [x] **1. Setup**: GitHub account, repository, project skeleton, GitHub Pages live
 - [x] **2. Users & household**: Supabase project, sign up / log in / log out,
       create household, invite link, join household, display names
-- [ ] **3. Core inventory**: database tables + security rules; list grouped by place;
+- [x] **3. Core inventory**: database tables + security rules; list grouped by place;
       add / edit / delete; + / − buttons; search and place filters;
       "updated by … · time ago"; live updates from other members
 - [ ] **4. Shopping list**: low-stock view, tick off while shopping, copy/share list

@@ -1,6 +1,6 @@
 // Screens for logged-in people:
 // - setup: create a household or join one with an invite code
-// - home: household name, members, invite button (the inventory arrives in step 3)
+// - household: household name, members, invite button, your display name
 
 import { show, esc, busy, toast, pendingInvite } from "./dom.js";
 import { createHousehold, joinHousehold, createInviteLink, listMembers, updateDisplayName } from "../household.js";
@@ -59,19 +59,15 @@ export function showHouseholdSetup(user, onDone) {
   join.elements[code ? "join-name" : "join-code"].focus();
 }
 
-// ---------- Home: member of a household ----------
+// ---------- Household page (opened from the inventory's "Household" button) ----------
 
-export async function showHome(user, me) {
+export async function showHousehold(user, me, onBack) {
   const app = show(`
+    <button class="link back" type="button" id="back">← Back to pantry</button>
     <header class="brand">
       <p class="eyebrow">${esc(me.household_name)}</p>
       <h1>Hi, ${esc(me.display_name)}</h1>
     </header>
-
-    <section class="card">
-      <h2>Pantry</h2>
-      <p class="muted">The inventory arrives in step 3. For now, invite everyone at home.</p>
-    </section>
 
     <section class="card">
       <div class="row-between"><h2>Household</h2><button class="btn small" type="button" id="invite">Invite someone</button></div>
@@ -147,4 +143,5 @@ export async function showHome(user, me) {
   };
 
   app.querySelector("#logout").onclick = logOut;
+  app.querySelector("#back").onclick = onBack;
 }
